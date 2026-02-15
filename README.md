@@ -51,7 +51,12 @@ npm run start:dev
 2) 프론트 정적 서버 실행 (별도 터미널)
 ```bash
 cd apps/web
-python -m http.server 4173
+npm run start
+```
+
+(파이썬 서버 대안)
+```bash
+npm run start:python
 ```
 
 3) 브라우저에서 `http://localhost:4173` 접속 후 각 버튼으로 API 호출
