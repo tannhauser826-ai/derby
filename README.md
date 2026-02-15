@@ -14,7 +14,7 @@
 
 ## Implemented now
 
-- `apps/api`: NestJS Public API 모듈 + ValidationPipe + mock 추천 로직
+- `apps/api`: NestJS Public API 모듈 + ValidationPipe + CORS + mock 추천 로직
   - `/v1/dates`
   - `/v1/recommendations`
   - `/v1/races`
@@ -37,6 +37,26 @@ npm run start:dev
 ```
 
 앱 실행 후 `http://localhost:3000/v1/dates` 등으로 확인할 수 있습니다.
+
+
+## Quick start (심플 프론트 + API 연동 테스트)
+
+1) API 실행
+```bash
+cd apps/api
+npm install
+npm run start:dev
+```
+
+2) 프론트 정적 서버 실행 (별도 터미널)
+```bash
+cd apps/web
+python -m http.server 4173
+```
+
+3) 브라우저에서 `http://localhost:4173` 접속 후 각 버튼으로 API 호출
+- 기본 Base URL: `http://localhost:3000/v1`
+- `/dates`, `/recommendations`, `/races`, `/races/:id`, `/participants`, `/stories`, `/guides/seats`, `/events` 전부 호출 가능
 
 ## Next step
 
