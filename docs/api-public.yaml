@@ -1,0 +1,117 @@
+openapi: 3.0.3
+info:
+  title: Seoul Derby Viewer Public API
+  version: 0.1.0
+  description: Auth-free MVP endpoints for race recommendations and viewing guides.
+servers:
+  - url: /v1
+paths:
+  /dates:
+    get:
+      summary: 제공 가능한 일정 날짜 목록
+      responses:
+        '200':
+          description: dates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dates:
+                    type: array
+                    items:
+                      type: string
+                      format: date
+  /recommendations:
+    get:
+      summary: 날짜/모드 기반 추천 레이스 TOP N
+      parameters:
+        - in: query
+          name: date
+          schema: { type: string, format: date }
+          required: true
+        - in: query
+          name: mode
+          schema: { type: string, enum: [beginner, date, family, photo, indoor] }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 5, minimum: 1, maximum: 20 }
+      responses:
+        '200':
+          description: recommendation list
+  /races:
+    get:
+      summary: 해당 날짜 레이스 목록
+      parameters:
+        - in: query
+          name: date
+          schema: { type: string, format: date }
+          required: true
+      responses:
+        '200':
+          description: race list
+  /races/{raceId}:
+    get:
+      summary: 레이스 상세 (추천 사유/관전 포인트/관련 스토리)
+      parameters:
+        - in: path
+          name: raceId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: race detail
+        '404':
+          description: not found
+  /races/{raceId}/participants:
+    get:
+      summary: 출주 말/기수/조교사 목록
+      parameters:
+        - in: path
+          name: raceId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: participant list
+  /stories:
+    get:
+      summary: 스토리 검색/필터
+      parameters:
+        - in: query
+          name: type
+          schema: { type: string, enum: [horse, jockey, trainer, race] }
+        - in: query
+          name: query
+          schema: { type: string }
+        - in: query
+          name: tags
+          schema:
+            type: array
+            items: { type: string }
+          style: form
+          explode: false
+      responses:
+        '200':
+          description: story list
+  /guides/seats:
+    get:
+      summary: 유형별 좌석/동선 가이드
+      parameters:
+        - in: query
+          name: mode
+          schema: { type: string, enum: [beginner, date, family, photo, indoor] }
+          required: true
+      responses:
+        '200':
+          description: seat guide
+  /events:
+    get:
+      summary: 행사/푸드/즐길거리 목록
+      parameters:
+        - in: query
+          name: date
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: event list

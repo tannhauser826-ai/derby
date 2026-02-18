@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StoryType {
+  horse
+  jockey
+  trainer
+  race
+}
+
+enum AudienceMode {
+  beginner
+  date
+  family
+  photo
+  indoor
+}
+
+model Race {
+  id            String               @id @default(uuid()) @db.Uuid
+  raceDate      DateTime             @db.Date
+  raceNo        Int
+  startTime     DateTime             @db.Time(0)
+  distance      Int
+  grade         String?
+  title         String
+  location      String               @default("Seoul Race Park")
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  participants  Participant[]
+  recommendations RaceRecommendation[]
+  stories       Story[]
+
+  @@unique([raceDate, raceNo])
+  @@index([raceDate, startTime])
+}
+
+model Participant {
+  id         String   @id @default(uuid()) @db.Uuid
+  raceId     String   @db.Uuid
+  horseId    String?  @db.Uuid
+  jockeyId   String?  @db.Uuid
+  trainerId  String?  @db.Uuid
+  gate       Int?
+  weight     Decimal? @db.Decimal(4, 1)
+  note       String?
+
+  race       Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  horse      Horse?   @relation(fields: [horseId], references: [id])
+  jockey     Jockey?  @relation(fields: [jockeyId], references: [id])
+  trainer    Trainer? @relation(fields: [trainerId], references: [id])
+
+  @@index([raceId])
+  @@index([horseId])
+  @@index([jockeyId])
+  @@index([trainerId])
+}
+
+model Horse {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  birthYear   Int?
+  sex         String?
+  summary     String?
+
+  participants Participant[]
+  stories      Story[]
+
+  @@index([name])
+}
+
+model Jockey {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  summary     String?
+
+  participants Participant[]
+  stories      Story[]
+
+  @@index([name])
+}
+
+model Trainer {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  summary     String?
+
+  participants Participant[]
+  stories      Story[]
+
+  @@index([name])
+}
+
+model Story {
+  id            String         @id @default(uuid()) @db.Uuid
+  type          StoryType
+  title         String
+  body          String
+  tags          String[]
+  coverImageUrl String?
+
+  raceId        String?        @db.Uuid
+  horseId       String?        @db.Uuid
+  jockeyId      String?        @db.Uuid
+  trainerId     String?        @db.Uuid
+
+  publishedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  race          Race?          @relation(fields: [raceId], references: [id], onDelete: SetNull)
+  horse         Horse?         @relation(fields: [horseId], references: [id], onDelete: SetNull)
+  jockey        Jockey?        @relation(fields: [jockeyId], references: [id], onDelete: SetNull)
+  trainer       Trainer?       @relation(fields: [trainerId], references: [id], onDelete: SetNull)
+
+  @@index([type, publishedAt])
+  @@index([raceId])
+  @@index([horseId])
+  @@index([jockeyId])
+  @@index([trainerId])
+}
+
+model RaceRecommendation {
+  id            String         @id @default(uuid()) @db.Uuid
+  raceId         String         @db.Uuid
+  score          Int
+  reasons        Json
+  audienceModes  AudienceMode[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  race           Race           @relation(fields: [raceId], references: [id], onDelete: Cascade)
+
+  @@index([score])
+  @@index([raceId])
+}
+
+model SeatGuide {
+  id           String        @id @default(uuid()) @db.Uuid
+  mode         AudienceMode
+  title        String
+  body         String
+  zone         String
+  tips         Json
+  mapImageUrl  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([mode])
+}
+
+model Event {
+  id           String        @id @default(uuid()) @db.Uuid
+  eventDate    DateTime      @db.Date
+  title        String
+  place        String
+  category     String
+  description  String
+  linkUrl      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([eventDate])
+  @@index([category])
+}
